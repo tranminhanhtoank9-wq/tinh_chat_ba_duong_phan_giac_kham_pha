@@ -4,38 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Khám Phá Tính Chất Ba Đường Phân Giác</title>
-    <!-- Tích hợp Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tích hợp MathJax để hiển thị công thức Toán học chuẩn -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script>
         window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] } };
     </script>
     <style>
-        /* Khóa cuộn trang tổng thể, thiết lập giao diện hai cột Split-Screen */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; overflow: hidden; margin: 0; padding: 0; }
-        
         canvas { touch-action: none; cursor: grab; }
         canvas:active { cursor: grabbing; }
-        
         .stage-card { display: none; transition: all 0.3s ease; }
         .stage-card.active { display: block; animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
-        /* Textarea cho câu trả lời tự luận */
-        .free-text-input { width: 100%; min-height: 80px; padding: 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #1e293b; background-color: #ffffff; resize: none; transition: all 0.3s; line-height: 1.5; }
-        .free-text-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
-        .free-text-input.success { border-color: #10b981; background-color: #ecfdf5; pointer-events: none; color: #047857; font-weight: 500; }
-        .free-text-input.error { border-color: #ef4444; background-color: #fef2f2; }
+        /* Input & Select fields styling */
+        .free-text-input, select, .blank-input { width: 100%; padding: 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; color: #1e293b; background-color: #ffffff; transition: all 0.3s; line-height: 1.5; }
+        textarea.free-text-input { min-height: 80px; resize: none; }
+        .blank-input { width: 140px; padding: 6px 12px; font-weight: bold; text-align: center; color: #047857; border-color: #6ee7b7; display: inline-block; margin: 0 4px; }
+        .free-text-input:focus, select:focus, .blank-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2); }
+        .free-text-input.success, select.success, .blank-input.success { border-color: #10b981; background-color: #ecfdf5; pointer-events: none; color: #047857; font-weight: 500; }
+        .free-text-input.error, select.error, .blank-input.error { border-color: #ef4444; background-color: #fef2f2; }
+        
+        /* Custom Slider */
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: #9333ea; cursor: pointer; margin-top: -8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.1s;}
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 8px; cursor: pointer; background: #e2e8f0; border-radius: 4px; }
+        input[type=range]:focus { outline: none; }
+        input[type=range].success-slider::-webkit-slider-thumb { background: #10b981; pointer-events: none; }
 
-        /* Input 1 dòng */
-        .single-line-input { width: 100%; padding: 8px 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; font-weight: bold; color: #1d4ed8; text-align: center; transition: all 0.3s; }
-        .single-line-input:focus { outline: none; border-color: #3b82f6; }
-        .single-line-input.success { border-color: #10b981; background-color: #ecfdf5; color: #047857; pointer-events: none; }
-        .single-line-input.error { border-color: #ef4444; background-color: #fef2f2; color: #dc2626; }
-
-        /* Toggle Switch CSS */
         .toggle-checkbox:checked { right: 0; border-color: #3b82f6; }
         .toggle-checkbox:checked + .toggle-label { background-color: #3b82f6; }
         .toggle-checkbox { right: 0; z-index: 1; border-color: #e2e8f0; transition: all 0.3s; }
@@ -45,27 +43,51 @@
 
         .cornell-box { border: 2px solid #1e40af; border-radius: 8px; overflow: hidden; }
         .cornell-left { border-right: 2px solid #1e40af; background: #eff6ff; }
-        
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #ffffff; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
         .btn-disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none;}
+        
+        /* Hiệu ứng viền vàng cho Certificate */
+        .cert-border { border: 8px solid transparent; border-image: repeating-linear-gradient(45deg, #fbbf24, #f59e0b, #d97706, #fbbf24) 10; }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col">
+
+<!-- MÀN HÌNH CHÀO MỪNG (NHẬP TÊN) -->
+<div id="welcome-screen" class="fixed inset-0 z-[200] flex items-center justify-center bg-gradient-to-br from-blue-800 to-indigo-900 transition-opacity duration-500">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl text-center transform transition-transform duration-500 hover:scale-105">
+        <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-800 mb-2">Chào mừng em đến với<br><span class="text-blue-600">Trạm Khám Phá Toán Học!</span></h2>
+        <p class="text-sm text-slate-600 mb-6">Chủ đề: Tính chất ba đường phân giác</p>
+        
+        <div class="text-left mb-6">
+            <label class="block text-sm font-bold text-slate-700 mb-2">Để bắt đầu, em hãy nhập Họ và Tên:</label>
+            <input type="text" id="student-name-input" class="w-full p-3 border-2 border-blue-200 rounded-xl outline-none focus:border-blue-500 transition-colors text-blue-900 font-semibold text-center" placeholder="Ví dụ: Nguyễn Văn A">
+            <p id="name-error" class="text-red-500 text-xs mt-2 hidden">⚠ Em chưa nhập tên kìa!</p>
+        </div>
+        
+        <button onclick="startJourney()" class="bg-blue-600 text-white text-lg font-bold px-6 py-3 rounded-xl hover:bg-blue-700 w-full transition shadow-lg flex items-center justify-center">
+            Bắt đầu hành trình <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </button>
+    </div>
+</div>
 
 <!-- Header -->
 <header class="bg-blue-800 text-white px-5 py-3 shadow-md z-30 shrink-0 flex justify-between items-center h-14">
     <h1 class="text-lg md:text-xl font-bold flex items-center tracking-wide">
         <svg class="w-6 h-6 mr-2 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"></path></svg>
-        Toán 7: Tính chất ba đường phân giác của tam giác
+        Toán 7: Tính chất ba đường phân giác
     </h1>
-    <button onclick="resetProgress()" class="text-xs md:text-sm bg-white text-blue-800 hover:bg-blue-50 py-1.5 px-4 rounded-md font-semibold shadow transition duration-200">🔄 Làm lại từ đầu</button>
+    <div class="flex items-center gap-4">
+        <span id="display-student-name" class="text-sm font-medium bg-blue-900/50 px-3 py-1 rounded-full hidden md:block"></span>
+        <button onclick="resetProgress()" class="text-xs md:text-sm bg-white text-blue-800 hover:bg-blue-50 py-1.5 px-4 rounded-md font-semibold shadow transition duration-200">🔄 Làm lại từ đầu</button>
+    </div>
 </header>
 
-<!-- Main Workspace -->
 <div class="flex-grow w-full h-[calc(100vh-3.5rem)] flex flex-col lg:flex-row overflow-hidden">
     
     <!-- CỘT TRÁI: BẢNG VẼ HÌNH HỌC ĐỘNG -->
@@ -96,9 +118,9 @@
                 <div class="flex items-center gap-3 w-full">
                     <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tiến trình</span>
                     <div class="h-2 flex-grow rounded-full bg-slate-200 overflow-hidden">
-                        <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-500" style="width: 25%;"></div>
+                        <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-500" style="width: 33%;"></div>
                     </div>
-                    <span id="stage-text" class="text-sm font-bold text-blue-700 whitespace-nowrap">Trạm 1/4</span>
+                    <span id="stage-text" class="text-sm font-bold text-blue-700 whitespace-nowrap">Trạm 1/3</span>
                 </div>
             </div>
 
@@ -120,10 +142,10 @@
                     <div id="q1-box" class="opacity-50 pointer-events-none transition-opacity duration-300">
                         <p class="font-bold text-blue-900 mb-2">Nhiệm vụ đúc kết:</p>
                         <p class="mb-4 text-sm font-medium text-blue-800 bg-blue-100/50 p-3 rounded border border-blue-200">
-                            <strong>Yêu cầu:</strong> Hãy kéo thả các đỉnh $A, B, C$ để tạo thành các tam giác có hình dáng khác nhau (tam giác nhọn, tam giác vuông, tam giác tù). Dù hình dạng thay đổi, em có nhận xét gì về 3 đường phân giác này?
+                            <strong>Yêu cầu:</strong> Hãy kéo thả các đỉnh $A, B, C$ để tạo thành các tam giác có hình dáng khác nhau (Tam giác tù, tam giác nhọn, tam giác vuông). Dù hình dạng thay đổi, em có nhận xét gì về vị trí/đặc điểm của 3 đường phân giác này trong tam giác ABC?
                         </p>
                         
-                        <textarea id="ans1" class="free-text-input mb-4" placeholder="Nhập nhận xét của em vào đây..."></textarea>
+                        <textarea id="ans1" class="free-text-input mb-4"></textarea>
 
                         <button id="btn-submit-1" onclick="checkStage(1)" class="bg-blue-600 text-white text-base font-bold px-4 py-3 rounded-xl hover:bg-blue-700 w-full transition shadow-md btn-disabled">Kiểm tra kết luận</button>
                         <p id="err1" class="text-red-600 text-sm font-medium mt-3 hidden bg-red-50 p-3 rounded-lg border border-red-200"></p>
@@ -135,7 +157,21 @@
             <div id="stage2" class="stage-card">
                 <div class="bg-emerald-50 border border-emerald-200 p-5 rounded-xl">
                     <h3 class="font-bold text-xl text-emerald-800 mb-3">📍 Trạm 2: Tính chất khoảng cách</h3>
-                    <p class="mb-4 text-sm text-slate-700 leading-relaxed">Hệ thống đã dựng sẵn ba đoạn thẳng vuông góc từ giao điểm $I$ xuống ba cạnh của tam giác (Các con số màu cam đại diện cho khoảng cách từ $I$ đến các cạnh).</p>
+                    
+                    <div class="bg-yellow-50 border border-yellow-300 p-4 rounded-lg mb-4 flex items-start gap-3 shadow-sm">
+                        <div class="text-xl">💡</div>
+                        <div class="text-sm text-yellow-800 leading-relaxed w-full">
+                            <strong>Nhắc lại kiến thức:</strong> Khoảng cách từ một điểm đến một đường thẳng là:
+                            <select id="distance-concept" class="mt-2 p-2 border border-yellow-400 rounded w-full bg-white outline-none focus:ring-2 focus:ring-yellow-500">
+                                <option value="">-- Chọn câu trả lời đúng --</option>
+                                <option value="wrong1">Đường bất kì nối từ điểm đến đường thẳng</option>
+                                <option value="correct">Đường vuông góc kẻ từ điểm đến đường thẳng</option>
+                                <option value="wrong2">Đường xiên kẻ từ điểm đến đường thẳng</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <p class="mb-4 text-sm text-slate-700 leading-relaxed">Hệ thống đã kẻ sẵn 3 đoạn vuông góc từ giao điểm $I$ xuống ba cạnh (Các con số màu cam hiển thị chính là độ dài của chúng).</p>
                     
                     <div class="bg-white p-4 rounded-lg mb-5 border border-emerald-100 shadow-sm flex items-center justify-between">
                         <span class="text-sm font-semibold text-emerald-800">Ẩn/Hiện ba tia phân giác cho dễ nhìn</span>
@@ -148,11 +184,20 @@
 
                     <div class="q-box">
                         <p class="font-bold text-emerald-900 mb-2">Nhiệm vụ đúc kết:</p>
-                        <p class="mb-4 text-sm font-medium text-emerald-800 bg-emerald-100/50 p-3 rounded border border-emerald-200">
-                            <strong>Yêu cầu:</strong> Liên tục kéo thả các đỉnh để thay đổi hình dạng tam giác và quan sát 3 số đo khoảng cách. Hãy rút ra kết luận về mối quan hệ giữa điểm $I$ và ba cạnh của tam giác.
-                        </p>
-                        
-                        <textarea id="ans2" class="free-text-input mb-4" placeholder="Nhập nhận xét của em vào đây..."></textarea>
+                        <div class="mb-4 text-sm font-medium text-emerald-800 bg-emerald-100/50 p-4 rounded border border-emerald-200 leading-relaxed">
+                            <p class="mb-2"><strong>Yêu cầu:</strong> Liên tục kéo thả các đỉnh và quan sát 3 con số, sau đó điền từ thích hợp vào chỗ trống:</p>
+                            
+                            <div class="mt-4 flex items-center gap-2 flex-wrap">
+                                <span>1. Khoảng cách từ $I$ đến ba cạnh của tam giác thì</span>
+                                <input type="text" id="ans2-1" class="blank-input">
+                                <span>.</span>
+                            </div>
+                            <div class="mt-3 flex items-center gap-2 flex-wrap">
+                                <span>2. Do đó, ta nói điểm $I$</span>
+                                <input type="text" id="ans2-2" class="blank-input">
+                                <span>ba cạnh của tam giác ABC.</span>
+                            </div>
+                        </div>
 
                         <button id="btn-submit-2" onclick="checkStage(2)" class="bg-emerald-600 text-white text-base font-bold px-4 py-3 rounded-xl hover:bg-emerald-700 w-full transition shadow-md btn-disabled">Kiểm tra kết luận</button>
                         <p id="err2" class="text-red-600 text-sm font-medium mt-3 hidden bg-red-50 p-3 rounded-lg border border-red-200"></p>
@@ -160,67 +205,25 @@
                 </div>
             </div>
 
-            <!-- STAGE 3: ĐƯỜNG TRÒN NỘI TIẾP -->
-            <div id="stage3" class="stage-card">
-                <div class="bg-purple-50 border border-purple-200 p-5 rounded-xl">
-                    <h3 class="font-bold text-xl text-purple-800 mb-3">📍 Trạm 3: Hiện tượng trực quan</h3>
-                    
-                    <div class="q-box">
-                        <p class="font-bold text-purple-900 mb-2">Thực hành vẽ hình:</p>
-                        <p class="mb-4 text-sm text-slate-800">Trong Toán học, tập hợp tất cả các điểm cách đều một tâm $I$ cố định với khoảng cách $r$ tạo thành một <strong>đường tròn</strong>.</p>
-                        
-                        <div class="bg-white p-4 rounded-lg mb-5 border border-purple-100 shadow-sm flex items-center justify-between">
-                            <span class="text-sm font-semibold text-purple-800">Dựng đường tròn tâm I để quan sát</span>
-                            <label class="relative inline-flex items-center cursor-pointer" onclick="toggleElement('incircle')">
-                                <input type="checkbox" id="toggle-circle" class="sr-only peer">
-                                <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:bg-purple-600 transition-colors"></div>
-                                <div class="absolute left-[2px] top-[2px] bg-white w-5 h-5 rounded-full transition-transform peer-checked:translate-x-full shadow-sm"></div>
-                            </label>
-                        </div>
-
-                        <div id="q3-box" class="opacity-50 pointer-events-none transition-opacity duration-300">
-                            <p class="font-bold text-purple-900 mb-2">Nhiệm vụ quan sát:</p>
-                            <p class="mb-3 text-sm font-medium text-purple-800 bg-purple-100/50 p-3 rounded border border-purple-200">
-                                Vì bán kính của đường tròn này chính bằng khoảng cách từ $I$ đến 3 cạnh, em hãy nhận xét xem đường tròn này có vị trí như thế nào so với 3 cạnh của tam giác?
-                            </p>
-                            <textarea id="ans3" class="free-text-input mb-4" placeholder="Nhập nhận xét... (Ví dụ: Đường tròn nằm bên trong và...)"></textarea>
-
-                            <button id="btn-submit-3" onclick="checkStage(3)" class="bg-purple-600 text-white text-base font-bold px-4 py-3 rounded-xl hover:bg-purple-700 w-full transition shadow-md btn-disabled">Kiểm tra kết luận</button>
-                            <p id="err3" class="text-red-600 text-sm font-medium mt-3 hidden bg-red-50 p-3 rounded-lg border border-red-200"></p>
-                        </div>
-                    </div>
-
-                    <!-- Phần 2 của Trạm 3: Hiện ra khi trả lời đúng -->
-                    <div id="stage3-part2" class="mt-6 hidden border-t border-purple-200 pt-6">
-                        <div class="bg-indigo-50 border-l-4 border-indigo-500 p-5 rounded-r-lg shadow-sm">
-                            <p class="font-bold text-indigo-900 mb-2 text-lg flex items-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                Định nghĩa chính thức:
-                            </p>
-                            <p class="text-sm leading-relaxed text-slate-800">
-                                Đường tròn nằm bên trong và tiếp xúc với cả ba cạnh của tam giác được gọi là <strong>Đường tròn nội tiếp</strong> tam giác.<br><br>
-                                Giao điểm của 3 đường phân giác trong tam giác chính là <strong>Tâm của đường tròn nội tiếp</strong> đó.
-                            </p>
-                        </div>
-                        <button onclick="goToStage4()" class="mt-5 bg-purple-600 text-white text-base font-bold px-4 py-3 rounded-xl hover:bg-purple-700 w-full transition shadow-md">Đã hiểu! Đi tiếp ➔</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ================= TRẠM 4: GHI BÀI & TỔNG KẾT ================= -->
+            <!-- ================= TRẠM 3: GHI BÀI & TỔNG KẾT ================= -->
             <div id="stageCornell" class="stage-card">
                 <div class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white p-6 text-center rounded-t-xl shadow-lg border border-slate-200 mb-6">
                     <h3 class="font-bold text-2xl uppercase tracking-widest mb-1">🏆 TỔNG KẾT BÀI HỌC</h3>
-                    <p class="text-sm text-blue-100">Các em đã tự mình tìm ra định lí! Hãy ghi chép lại để khắc sâu kiến thức.</p>
+                    <p class="text-sm text-blue-100">Các em đã xuất sắc hoàn thành 2 trạm trải nghiệm! Bây giờ hãy chép lại bài để khắc sâu kiến thức nhé.</p>
                 </div>
                 
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
                     <div class="w-full p-5 md:p-6 flex flex-col">
-                        <p class="font-bold text-lg text-slate-800 mb-4 flex items-center border-b pb-2">
-                            <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                            Phiếu Ghi Bài (Phương pháp Cornell)
-                        </p>
                         
+                        <!-- Yêu cầu Ghi Chép -->
+                        <div class="bg-rose-50 border-l-4 border-rose-500 p-4 mb-6 rounded shadow-sm">
+                            <p class="font-bold text-rose-800 text-sm flex items-center mb-1">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                Yêu cầu ghi chép:
+                            </p>
+                            <p class="text-sm text-rose-700">Các em hãy ghi chép toàn bộ bảng <strong>Từ khoá - Nội dung</strong> bên dưới vào vở. Đặc biệt chú ý: sử dụng <strong>bút mực, thước thẳng</strong> để vẽ hình thật cẩn thận và chính xác nhé! Nhớ <strong>kí hiệu rõ 2 góc bằng nhau</strong> tạo bởi tia phân giác.</p>
+                        </div>
+
                         <div class="cornell-box flex flex-col text-sm mb-6 flex-grow border-2 border-blue-800 rounded-lg">
                             <div class="flex flex-row bg-blue-50 border-b-2 border-blue-800">
                                 <div class="w-1/3 cornell-left p-3 font-extrabold text-blue-900 uppercase tracking-wide text-xs text-center border-r border-blue-800">Từ khóa</div>
@@ -234,18 +237,38 @@
                                 <div class="w-full md:w-2/3 p-4 text-slate-800 leading-relaxed">
                                     <p class="mb-4">Trong $\Delta ABC$, tia phân giác góc $\widehat{A}$ cắt cạnh $BC$ tại $D$. Khi đó đoạn thẳng $AD$ được gọi là đường phân giác của tam giác.</p>
                                     
-                                    <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-100 flex flex-col md:flex-row gap-6 items-center">
-                                        <div class="w-full md:w-1/2">
-                                            <p class="font-bold text-blue-900 mb-2 text-xs uppercase tracking-wide">Yêu cầu vẽ hình vào vở:</p>
-                                            <ul class="text-slate-600 text-sm space-y-1.5 pl-4 list-decimal">
-                                                <li>Vẽ một tam giác $ABC$ <strong>nhọn bất kỳ (không đặc biệt)</strong>.</li>
-                                                <li>Dùng thước kẻ ba đường phân giác cắt nhau tại $I$.</li>
-                                                <li>Từ $I$ kẻ các đường vuông góc với các cạnh.</li>
-                                                <li>Vẽ đường tròn nội tiếp tam giác $ABC$, tâm $I$, bán kính là khoảng cách vừa xác định.</li>
-                                            </ul>
+                                    <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-100 flex flex-col lg:flex-row gap-6 items-center">
+                                        <div class="w-full lg:w-[55%] flex flex-col gap-2">
+                                            <div class="aspect-[4/3] w-full bg-white rounded shadow-inner border-2 border-slate-200 relative overflow-hidden shrink-0 flex items-center justify-center">
+                                                <canvas id="staticCanvas" class="w-full h-full"></canvas>
+                                            </div>
+                                            <!-- Trình điều khiển các bước vẽ -->
+                                            <div class="flex justify-between items-center bg-white p-2.5 rounded-lg border border-blue-200 shadow-sm">
+                                                <button id="btn-prev-step" onclick="changeStaticStep(-1)" class="px-4 py-1.5 bg-slate-100 border border-slate-300 hover:bg-slate-200 rounded text-slate-700 font-bold text-sm disabled:opacity-50 transition-colors shadow-sm disabled:cursor-not-allowed">◄ Trước</button>
+                                                <span id="static-step-text" class="text-sm font-bold text-blue-800 px-3 py-1 rounded-full bg-blue-50 border border-blue-100">Bước 1/4</span>
+                                                <button id="btn-next-step" onclick="changeStaticStep(1)" class="px-4 py-1.5 bg-blue-600 border border-blue-600 hover:bg-blue-700 rounded text-white font-bold text-sm disabled:opacity-50 transition-colors shadow-sm disabled:cursor-not-allowed">Tiếp ►</button>
+                                            </div>
                                         </div>
-                                        <div class="w-full md:w-1/2 aspect-[4/3] max-w-sm bg-white rounded shadow-inner border-2 border-slate-200 relative overflow-hidden shrink-0 flex items-center justify-center">
-                                            <canvas id="staticCanvas" class="w-full h-full"></canvas>
+                                        <div class="w-full lg:w-[45%] flex flex-col justify-center">
+                                            <p class="font-bold text-blue-900 mb-3 text-sm uppercase tracking-wide border-b border-blue-200 pb-2">Các bước vẽ hình:</p>
+                                            <ul class="text-[0.9rem] space-y-3.5 pl-1">
+                                                <li id="step-text-1" class="text-blue-700 font-bold transition-colors duration-300 flex items-start gap-2.5">
+                                                    <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 text-xs border border-blue-300 mt-0.5">1</span> 
+                                                    <span>Vẽ tam giác $ABC$ nhọn.</span>
+                                                </li>
+                                                <li id="step-text-2" class="text-slate-500 transition-colors duration-300 flex items-start gap-2.5">
+                                                    <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 text-xs border border-slate-300 mt-0.5">2</span> 
+                                                    <span>Vẽ đường phân giác $AD$.</span>
+                                                </li>
+                                                <li id="step-text-3" class="text-slate-500 transition-colors duration-300 flex items-start gap-2.5">
+                                                    <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 text-xs border border-slate-300 mt-0.5">3</span> 
+                                                    <span>Vẽ tia phân giác góc $B$ và góc $C$. Ba đường phân giác cắt nhau tại điểm $I$.</span>
+                                                </li>
+                                                <li id="step-text-4" class="text-slate-500 transition-colors duration-300 flex items-start gap-2.5">
+                                                    <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 text-xs border border-slate-300 mt-0.5">4</span> 
+                                                    <span>Xác định khoảng cách từ $I$ đến ba cạnh tam giác.</span>
+                                                </li>
+                                            </ul>
                                         </div>
                                     </div>
                                 </div>
@@ -253,17 +276,15 @@
 
                             <div class="flex flex-col md:flex-row bg-white">
                                 <div class="w-full md:w-1/3 cornell-left p-4 font-semibold text-slate-700 flex flex-col items-center justify-center text-center border-b md:border-b-0 md:border-r border-blue-200">
-                                    Tính chất 3 đường phân giác
+                                    Tính chất cốt lõi
                                 </div>
                                 <div class="w-full md:w-2/3 p-4 text-slate-800 leading-relaxed">
-                                    <p class="mb-3 font-medium">1. Ba đường phân giác trong tam giác luôn cùng đi qua một điểm (tính chất đồng quy).</p>
-                                    <p class="font-medium">2. Điểm này luôn <strong class="bg-yellow-200 px-1.5 py-0.5 rounded text-red-700">cách đều ba cạnh</strong> của tam giác đó.</p>
-                                    <p class="mt-3 italic text-slate-800 font-medium">👉 Nói cách khác, giao điểm ba đường phân giác trong tam giác là <strong class="text-purple-700">tâm đường tròn nội tiếp</strong> tam giác.</p>
+                                    <p class="mb-3 font-medium">1. Ba đường phân giác trong tam giác luôn <strong class="text-blue-700">cùng đi qua một điểm</strong> (đồng quy).</p>
+                                    <p class="font-medium mb-3">2. Điểm này luôn <strong class="bg-yellow-200 px-1.5 py-0.5 rounded text-red-700">cách đều ba cạnh</strong> của tam giác đó.</p>
                                 </div>
                             </div>
                         </div>
-                        
-                        <button onclick="showCompletionModal()" class="bg-indigo-600 text-white text-base font-bold px-4 py-3 rounded-xl hover:bg-indigo-700 w-full transition shadow-md mt-auto">Hoàn tất Ghi Bài & Chuyển sang Luyện Tập</button>
+                        <button onclick="showCompletionModal()" class="bg-indigo-600 text-white text-base font-bold px-4 py-3 rounded-xl hover:bg-indigo-700 w-full transition shadow-md mt-auto">Đã ghi chép xong! Nhận Chứng Nhận ➔</button>
                     </div>
                 </div>
             </div>
@@ -272,44 +293,82 @@
     </div>
 </div>
 
-<!-- Modal Chúc mừng & Chuyển file -->
-<div id="completionModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-slate-900/60 backdrop-blur-sm transition-opacity">
-    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl text-center flex flex-col items-center">
-        <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-4">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+<!-- Modal Chúc mừng dạng Giấy Chứng Nhận -->
+<div id="completionModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-slate-900/80 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-xl p-2 max-w-lg w-full mx-4 shadow-2xl relative overflow-hidden">
+        <!-- Viền chứng nhận -->
+        <div class="cert-border absolute inset-0 rounded-xl pointer-events-none"></div>
+        
+        <div class="p-8 text-center bg-amber-50 rounded-lg flex flex-col items-center relative z-10 border border-amber-100 h-full">
+            <div class="w-20 h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mb-4 shadow-md border-2 border-amber-200">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+            </div>
+            
+            <h2 class="text-3xl font-black text-amber-800 uppercase tracking-widest mb-2">Giấy Chứng Nhận</h2>
+            <p class="text-amber-700 font-medium mb-6">Trạm Khám Phá Toán Học</p>
+            
+            <p class="text-slate-600 text-sm mb-1">Trao tặng cho học sinh:</p>
+            <h3 id="cert-student-name" class="text-2xl font-bold text-blue-800 mb-6 pb-2 border-b-2 border-blue-200 inline-block px-4">Tên Học Sinh</h3>
+            
+            <p class="text-slate-700 mb-8 leading-relaxed font-medium">
+                Đã xuất sắc hoàn thành 2 Trạm trải nghiệm tương tác và ghi chép đầy đủ nội dung bài <strong>"Tính chất ba đường phân giác của tam giác"</strong>.
+            </p>
+            
+            <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl w-full mb-6 text-left shadow-sm">
+                <p class="font-bold text-blue-900 text-sm flex items-center mb-1">
+                    <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Nhiệm vụ cuối cùng:
+                </p>
+                <p class="text-xs text-blue-800">Em hãy <strong class="text-red-600">chụp lại màn hình</strong> Giấy chứng nhận này và nộp lại cho <strong>Ms. Ánh</strong> để nhận điểm thưởng nhé!</p>
+            </div>
+            
+            <button onclick="document.getElementById('completionModal').classList.add('hidden')" class="text-slate-400 text-xs hover:text-slate-600 underline">Đóng cửa sổ</button>
         </div>
-        <h3 class="text-2xl font-bold text-slate-800 mb-2">Hoàn Thành Xuất Sắc!</h3>
-        <p class="text-slate-600 mb-6 leading-relaxed">Em đã xuất sắc tự mình đúc kết được các định lí Toán học quan trọng. Do giới hạn của môi trường xem trước (preview), hệ thống không tự động chuyển trang.<br><br>Hãy chủ động mở tệp <strong class="text-indigo-600">luyen_tap.html</strong> để bước vào phần Luyện Tập & Chinh Phục nhé!</p>
-        <button onclick="document.getElementById('completionModal').classList.add('hidden')" class="bg-indigo-600 text-white font-bold py-3 px-6 rounded-xl hover:bg-indigo-700 transition-colors w-full">Đã hiểu</button>
     </div>
 </div>
 
 <script>
     // --- APP STATE ---
     let currentStage = localStorage.getItem('pg_stage') ? parseInt(localStorage.getItem('pg_stage')) : 1;
-    if(currentStage > 4) currentStage = 4; // Cap for this file
+    if(currentStage > 3) currentStage = 3;
     let hasInteracted = false; 
+    let stage2ErrorCount = 0; // Biến đếm số lần sai ở trạm 2
+    let studentName = localStorage.getItem('pg_student_name') || '';
+    let staticStep = 1; // Quản lý bước vẽ hình tĩnh
     
     let config = {
         showBisectorB: true, showBisectorC: true, showBisectorA: localStorage.getItem('pg_config_A') === 'true',
-        showAllBisectors: true, showPerps: false, showIncircle: false
+        showAllBisectors: true, showPerps: false
     };
 
-    // State lưu trữ câu trả lời tự luận
-    let studentAns = JSON.parse(localStorage.getItem('pg_text_ans') || '{"1":"", "2":"", "3":""}');
+    let studentAns = JSON.parse(localStorage.getItem('pg_text_ans') || '{"1":"", "2_1":"", "2_2":"", "distConcept":""}');
+
+    function startJourney() {
+        const nameInput = document.getElementById('student-name-input').value.trim();
+        if (nameInput === '') {
+            document.getElementById('name-error').classList.remove('hidden');
+            return;
+        }
+        studentName = nameInput;
+        localStorage.setItem('pg_student_name', studentName);
+        document.getElementById('display-student-name').innerText = "Học sinh: " + studentName;
+        document.getElementById('display-student-name').classList.remove('hidden');
+        document.getElementById('welcome-screen').classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => document.getElementById('welcome-screen').classList.add('hidden'), 500);
+        
+        applyStageConfig();
+    }
 
     function showCompletionModal() {
+        document.getElementById('cert-student-name').innerText = studentName || "Học sinh Ẩn Danh";
         document.getElementById('completionModal').classList.remove('hidden');
     }
 
-    // --- CANVAS ENGINE (CỘT TRÁI) ---
+    // --- CANVAS ENGINE ---
     const canvas = document.getElementById('geoCanvas');
     const ctx = canvas.getContext('2d');
     let width, height;
-    let isDragging = false;
-    let dragTarget = null;
-    let needsRedraw = true; 
-    
+    let isDragging = false, dragTarget = null, needsRedraw = true; 
     let pts = [ { x: 0, y: 0, label: 'A' }, { x: 0, y: 0, label: 'B' }, { x: 0, y: 0, label: 'C' } ];
 
     function initGeometry() {
@@ -332,18 +391,32 @@
         needsRedraw = true;
     }
     
-    window.addEventListener('load', () => { setTimeout(initGeometry, 100); });
+    window.addEventListener('load', () => { 
+        setTimeout(initGeometry, 100); 
+        
+        // Show welcome screen logic
+        if (studentName) {
+            document.getElementById('student-name-input').value = studentName;
+            document.getElementById('display-student-name').innerText = "Học sinh: " + studentName;
+            document.getElementById('display-student-name').classList.remove('hidden');
+            document.getElementById('welcome-screen').classList.add('hidden', 'opacity-0', 'pointer-events-none');
+        } else {
+            document.getElementById('welcome-screen').classList.remove('hidden');
+        }
+    });
+    
     window.addEventListener('resize', () => { 
-        if(currentStage < 4) initGeometry(); 
-        if(currentStage >= 4) renderStaticCanvas(); 
+        if(currentStage < 3) initGeometry(); 
+        if(currentStage >= 3) renderStaticCanvas(); 
     });
 
     function distance(p1, p2) { return Math.hypot(p1.x - p2.x, p1.y - p2.y); }
     
     function getIncenter(points) {
-        let a = distance(points[1], points[2]); let b = distance(points[0], points[2]); let c = distance(points[0], points[1]); 
+        let a = distance(points[1], points[2]), b = distance(points[0], points[2]), c = distance(points[0], points[1]); 
         let p = a + b + c; if(p === 0) return {x:0, y:0, r:0};
-        let Ix = (a*points[0].x + b*points[1].x + c*points[2].x) / p; let Iy = (a*points[0].y + b*points[1].y + c*points[2].y) / p;
+        let Ix = (a*points[0].x + b*points[1].x + c*points[2].x) / p; 
+        let Iy = (a*points[0].y + b*points[1].y + c*points[2].y) / p;
         let s = p / 2; let area = Math.sqrt(s * (s-a) * (s-b) * (s-c)); let r = area / s; 
         return { x: Ix, y: Iy, r: r, a:a, b:b, c:c };
     }
@@ -402,10 +475,41 @@
             context.fillStyle = '#c2410c'; context.font = "bold 16px Arial";
             context.fillText(cmDist + " cm", (I.x + Px)/2 + 6, (I.y + Py)/2 - 6);
         }
-        if(label !== '') {
+        
+        if (label !== '') {
             context.fillStyle = '#1e293b'; context.font = "bold 18px Arial";
-            context.fillText(label, Px - unx*22 - 6, Py - uny*22 + 6);
+            context.fillText(label, Px + unx * 22 - 6, Py + uny * 22 + 6);
         }
+    }
+
+    function changeStaticStep(delta) {
+        staticStep += delta;
+        if (staticStep < 1) staticStep = 1;
+        if (staticStep > 4) staticStep = 4;
+        
+        document.getElementById('static-step-text').innerText = `Bước ${staticStep}/4`;
+        document.getElementById('btn-prev-step').disabled = (staticStep === 1);
+        document.getElementById('btn-next-step').disabled = (staticStep === 4);
+        
+        for(let i=1; i<=4; i++) {
+            let el = document.getElementById(`step-text-${i}`);
+            if(el) {
+                if(i === staticStep) {
+                    el.classList.add('text-blue-700', 'font-bold');
+                    el.classList.remove('text-slate-500');
+                    el.children[0].classList.replace('bg-slate-100', 'bg-blue-100');
+                    el.children[0].classList.replace('text-slate-500', 'text-blue-700');
+                    el.children[0].classList.replace('border-slate-300', 'border-blue-300');
+                } else {
+                    el.classList.remove('text-blue-700', 'font-bold');
+                    el.classList.add('text-slate-500');
+                    el.children[0].classList.replace('bg-blue-100', 'bg-slate-100');
+                    el.children[0].classList.replace('text-blue-700', 'text-slate-500');
+                    el.children[0].classList.replace('border-blue-300', 'border-slate-300');
+                }
+            }
+        }
+        renderStaticCanvas();
     }
 
     function drawPointBase(context, p, label, color, isVertex=false) {
@@ -428,7 +532,7 @@
     }
 
     function render() {
-        if(needsRedraw && width && height && currentStage < 4) {
+        if(needsRedraw && width && height && currentStage < 3) {
             ctx.clearRect(0, 0, width, height); drawGrid(ctx, width, height);
 
             const I = getIncenter(pts); const Feet = getBisectorFeet(pts, I);
@@ -445,26 +549,18 @@
 
             if(config.showPerps) {
                 let showDist = currentStage < 4;
-                drawPerpendicularBase(ctx, I, pts[0], pts[1], I.r, showDist, '#ea580c', ''); 
-                drawPerpendicularBase(ctx, I, pts[1], pts[2], I.r, showDist, '#ea580c', ''); 
-                drawPerpendicularBase(ctx, I, pts[2], pts[0], I.r, showDist, '#ea580c', '');
+                drawPerpendicularBase(ctx, I, pts[0], pts[1], I.r, showDist, '#ea580c', 'H'); 
+                drawPerpendicularBase(ctx, I, pts[1], pts[2], I.r, showDist, '#ea580c', 'K'); 
+                drawPerpendicularBase(ctx, I, pts[2], pts[0], I.r, showDist, '#ea580c', 'L'); 
             }
 
-            if(config.showIncircle) {
-                ctx.beginPath(); ctx.arc(I.x, I.y, I.r, 0, Math.PI * 2);
-                ctx.strokeStyle = '#a855f7'; ctx.lineWidth = 2.5; ctx.stroke();
-                ctx.fillStyle = 'rgba(168, 85, 247, 0.15)'; ctx.fill();
-                if(!config.showPerps) drawPerpendicularBase(ctx, I, pts[1], pts[2], I.r, false, '#a855f7'); 
-            }
-
-            if(config.showAllBisectors || config.showPerps || config.showIncircle) drawPointBase(ctx, I, 'I', '#ef4444', false);
+            if(config.showAllBisectors || config.showPerps) drawPointBase(ctx, I, 'I', '#ef4444', false);
             pts.forEach(p => drawPointBase(ctx, p, p.label, '#1e293b', true));
             needsRedraw = false;
         }
         requestAnimationFrame(render);
     }
 
-    // Render Canvas Hình Tĩnh Cho Phiếu Ghi Bài (Được làm lại theo yêu cầu)
     function renderStaticCanvas() {
         const sCanvas = document.getElementById('staticCanvas'); if(!sCanvas) return;
         const rect = sCanvas.parentElement.getBoundingClientRect();
@@ -476,85 +572,94 @@
         sCanvas.style.width = `${rect.width}px`; sCanvas.style.height = `${rect.height}px`;
 
         let w = rect.width; let h = rect.height;
-        
-        // Căn chỉnh tam giác to, nhọn thường, rõ ràng
-        let pts = [
-            { x: w * 0.35, y: h * 0.15, label: 'A' },
-            { x: w * 0.15, y: h * 0.85, label: 'B' },
-            { x: w * 0.85, y: h * 0.85, label: 'C' }
-        ];
-        
+        ctxS.clearRect(0, 0, w, h);
+
+        // Đỉnh A kéo xuống để không mất chữ, tạo hình lệch (scalene)
+        let pts = [ { x: w * 0.40, y: h * 0.25, label: 'A' }, { x: w * 0.10, y: h * 0.80, label: 'B' }, { x: w * 0.90, y: h * 0.80, label: 'C' } ];
         const I = getIncenter(pts);
 
-        // Nét vẽ mảnh
-        ctxS.lineWidth = 1.2;
-        
-        // Vẽ tam giác ABC
-        ctxS.beginPath(); ctxS.moveTo(pts[0].x, pts[0].y); ctxS.lineTo(pts[1].x, pts[1].y); ctxS.lineTo(pts[2].x, pts[2].y); ctxS.closePath();
-        ctxS.strokeStyle = '#475569'; ctxS.stroke();
-
-        // Vẽ đường nối IA, IB, IC
-        ctxS.beginPath(); ctxS.moveTo(pts[0].x, pts[0].y); ctxS.lineTo(I.x, I.y);
-        ctxS.moveTo(pts[1].x, pts[1].y); ctxS.lineTo(I.x, I.y);
-        ctxS.moveTo(pts[2].x, pts[2].y); ctxS.lineTo(I.x, I.y);
-        ctxS.strokeStyle = '#3b82f6'; ctxS.stroke();
-
-        // Hàm vẽ vuông góc rút gọn
-        const drawPerpThin = (A, B, labelStr) => {
-            let dx = B.x - A.x; let dy = B.y - A.y;
-            let len = Math.hypot(dx, dy); let udx = dx / len; let udy = dy / len;
-            let t = ((I.x - A.x)*dx + (I.y - A.y)*dy) / (len*len);
-            let Px = A.x + t*dx; let Py = A.y + t*dy;
-
-            // Đoạn vuông góc
-            ctxS.beginPath(); ctxS.moveTo(I.x, I.y); ctxS.lineTo(Px, Py);
-            ctxS.strokeStyle = '#ef4444'; ctxS.stroke();
-
-            // Ký hiệu vuông góc
-            let size = 8; let nx = Px - I.x; let ny = Py - I.y; let nl = Math.hypot(nx, ny); let unx = nx / nl; let uny = ny / nl;
-            ctxS.beginPath();
-            ctxS.moveTo(Px - udx*size, Py - udy*size); 
-            ctxS.lineTo(Px - udx*size - unx*size, Py - udy*size - uny*size); 
-            ctxS.lineTo(Px - unx*size, Py - uny*size);
-            ctxS.strokeStyle = '#22c55e'; ctxS.stroke(); 
-
-            // Label
-            ctxS.fillStyle = '#64748b'; ctxS.font = "bold 14px Arial";
-            ctxS.textAlign = "center"; ctxS.textBaseline = "middle";
-            ctxS.fillText(labelStr, Px + unx*14, Py + uny*14);
+        let c = distance(pts[0], pts[1]);
+        let b = distance(pts[0], pts[2]);
+        let D = {
+            x: (b * pts[1].x + c * pts[2].x) / (b + c),
+            y: (b * pts[1].y + c * pts[2].y) / (b + c),
+            label: 'D'
         };
 
-        drawPerpThin(pts[0], pts[1], 'H'); // AB
-        drawPerpThin(pts[1], pts[2], 'L'); // BC
-        drawPerpThin(pts[2], pts[0], 'K'); // AC
-
-        // Vẽ đường tròn nội tiếp
-        ctxS.beginPath(); ctxS.arc(I.x, I.y, I.r, 0, Math.PI * 2);
-        ctxS.strokeStyle = '#a855f7'; ctxS.stroke();
-        ctxS.fillStyle = 'rgba(168, 85, 247, 0.1)'; ctxS.fill();
-        
-        // Vẽ các điểm Point nhỏ
-        const drawDot = (p, labelStr, isVertex) => {
-            ctxS.beginPath(); ctxS.arc(p.x, p.y, isVertex ? 4 : 3, 0, Math.PI * 2);
-            ctxS.fillStyle = isVertex ? '#3b82f6' : '#64748b'; ctxS.fill();
-            ctxS.lineWidth = 1; ctxS.strokeStyle = '#1e293b'; ctxS.stroke();
+        const drawPerpAndTick = (A, B) => {
+            let dx = B.x - A.x; let dy = B.y - A.y; let len = Math.hypot(dx, dy); let udx = dx / len; let udy = dy / len;
+            let t = ((I.x - A.x)*dx + (I.y - A.y)*dy) / (len*len); let Px = A.x + t*dx; let Py = A.y + t*dy;
             
-            ctxS.fillStyle = '#1e293b'; ctxS.font = "bold 16px Arial";
-            ctxS.textAlign = "center"; ctxS.textBaseline = "middle";
-            let ox = 0, oy = -16;
-            if(labelStr === 'B') { ox = -16; oy = 16; }
-            else if(labelStr === 'C') { ox = 16; oy = 16; }
-            else if(labelStr === 'I') { ox = -12; oy = 12; }
+            // Đường vuông góc (Nét đứt)
+            ctxS.beginPath(); ctxS.moveTo(I.x, I.y); ctxS.lineTo(Px, Py); 
+            ctxS.strokeStyle = '#ea580c'; ctxS.setLineDash([4, 4]); ctxS.lineWidth = 1.5; ctxS.stroke();
+            ctxS.setLineDash([]);
+            
+            // Kí hiệu vuông góc
+            let size = 8; let nx = Px - I.x; let ny = Py - I.y; let nl = Math.hypot(nx, ny); let unx = nx / nl; let uny = ny / nl;
+            ctxS.beginPath(); ctxS.moveTo(Px - udx*size, Py - udy*size); ctxS.lineTo(Px - udx*size - unx*size, Py - udy*size - uny*size); ctxS.lineTo(Px - unx*size, Py - uny*size); 
+            ctxS.strokeStyle = '#22c55e'; ctxS.lineWidth = 1.5; ctxS.stroke(); 
+            
+            // Kí hiệu bằng nhau (1 gạch)
+            let mx = (I.x + Px) / 2; let my = (I.y + Py) / 2;
+            let tickLen = 6;
+            ctxS.beginPath(); ctxS.moveTo(mx - udx*tickLen, my - udy*tickLen); ctxS.lineTo(mx + udx*tickLen, my + udy*tickLen);
+            ctxS.strokeStyle = '#ea580c'; ctxS.lineWidth = 2.5; ctxS.stroke();
+        };
+
+        const drawDot = (p, labelStr, isVertex) => {
+            ctxS.beginPath(); ctxS.arc(p.x, p.y, isVertex ? 5 : 4, 0, Math.PI * 2);
+            ctxS.fillStyle = isVertex ? '#ffffff' : (labelStr === 'I' ? '#a855f7' : '#ef4444'); ctxS.fill();
+            ctxS.lineWidth = 2; ctxS.strokeStyle = isVertex ? '#1e293b' : (labelStr === 'I' ? '#a855f7' : '#ef4444'); ctxS.stroke();
+            
+            ctxS.fillStyle = '#0f172a'; ctxS.font = "bold 16px Arial"; ctxS.textAlign = "center"; ctxS.textBaseline = "middle";
+            let ox = 0, oy = -20; 
+            if(labelStr === 'B') { ox = -20; oy = 20; } 
+            else if(labelStr === 'C') { ox = 20; oy = 20; } 
+            else if(labelStr === 'D') { ox = 0; oy = 20; }
+            else if(labelStr === 'I') { ox = 15; oy = -15; }
             ctxS.fillText(labelStr, p.x + ox, p.y + oy);
         };
 
-        drawDot(I, 'I', false);
-        drawDot(pts[0], 'A', true);
-        drawDot(pts[1], 'B', true);
-        drawDot(pts[2], 'C', true);
+        // BƯỚC 1: Tam giác ABC
+        ctxS.lineWidth = 1.5;
+        ctxS.beginPath(); ctxS.moveTo(pts[0].x, pts[0].y); ctxS.lineTo(pts[1].x, pts[1].y); ctxS.lineTo(pts[2].x, pts[2].y); ctxS.closePath();
+        ctxS.strokeStyle = '#334155'; ctxS.stroke();
+        ctxS.fillStyle = '#f8fafc'; ctxS.fill();
+
+        // BƯỚC 2: Phân giác AD
+        if (staticStep >= 2) {
+            ctxS.beginPath(); ctxS.moveTo(pts[0].x, pts[0].y); ctxS.lineTo(D.x, D.y);
+            ctxS.strokeStyle = '#3b82f6'; ctxS.lineWidth = 2; ctxS.stroke();
+            drawAngleMarkBase(ctxS, pts[0], pts[1], D, '#3b82f6', 1);
+            drawAngleMarkBase(ctxS, pts[0], D, pts[2], '#3b82f6', 1);
+            drawDot(D, 'D', false);
+        }
+
+        // BƯỚC 3: Tia phân giác B, C và tâm I
+        if (staticStep >= 3) {
+            ctxS.beginPath(); ctxS.moveTo(pts[1].x, pts[1].y); ctxS.lineTo(I.x, I.y);
+            ctxS.moveTo(pts[2].x, pts[2].y); ctxS.lineTo(I.x, I.y);
+            ctxS.strokeStyle = '#3b82f6'; ctxS.lineWidth = 2; ctxS.stroke();
+
+            drawAngleMarkBase(ctxS, pts[1], pts[2], I, '#3b82f6', 2);
+            drawAngleMarkBase(ctxS, pts[1], I, pts[0], '#3b82f6', 2);
+            drawAngleMarkBase(ctxS, pts[2], pts[0], I, '#3b82f6', 3);
+            drawAngleMarkBase(ctxS, pts[2], I, pts[1], '#3b82f6', 3);
+            drawDot(I, 'I', false);
+        }
+
+        // BƯỚC 4: Khoảng cách từ I
+        if (staticStep >= 4) {
+            drawPerpAndTick(pts[0], pts[1]); // AB
+            drawPerpAndTick(pts[1], pts[2]); // BC
+            drawPerpAndTick(pts[2], pts[0]); // AC
+        }
+
+        // Luôn vẽ 3 đỉnh tam giác ở trên cùng
+        drawDot(pts[0], 'A', true); drawDot(pts[1], 'B', true); drawDot(pts[2], 'C', true);
     }
 
-    // --- MOUSE INTERACTIONS ---
     function getMousePos(evt) {
         const rect = canvas.getBoundingClientRect();
         let clientX = evt.clientX || (evt.touches && evt.touches[0].clientX);
@@ -566,7 +671,7 @@
     window.addEventListener('mouseup', up); window.addEventListener('touchend', up);
 
     function down(e) {
-        if (currentStage >= 4) return;
+        if (currentStage >= 3) return;
         let pos = getMousePos(e);
         for(let p of pts) {
             if(distance(p, pos) < 40) { dragTarget = p; isDragging = true; if(e.type === 'touchstart') e.preventDefault(); break; }
@@ -592,81 +697,86 @@
         }
     }
 
-    // --- LOGIC KIỂM TRA ĐÁP ÁN ---
-    // Bind event listeners for auto-saving
     document.addEventListener('DOMContentLoaded', () => {
-        ['1', '2', '3'].forEach(id => {
-            let el = document.getElementById(`ans${id}`);
+        let textAns1 = document.getElementById('ans1');
+        if(textAns1) {
+            textAns1.value = studentAns['1'] || '';
+            textAns1.addEventListener('input', () => {
+                studentAns['1'] = textAns1.value; localStorage.setItem('pg_text_ans', JSON.stringify(studentAns));
+                let errEl = document.getElementById('err1'); if(errEl) errEl.classList.add('hidden');
+            });
+        }
+
+        ['2_1', '2_2'].forEach(id => {
+            let el = document.getElementById(`ans${id.replace('_', '-')}`);
             if(el) {
                 el.value = studentAns[id] || '';
                 el.addEventListener('input', () => {
-                    studentAns[id] = el.value;
-                    localStorage.setItem('pg_text_ans', JSON.stringify(studentAns));
-                    let errEl = document.getElementById(`err${id}`);
-                    if(errEl) errEl.classList.add('hidden');
+                    studentAns[id] = el.value; localStorage.setItem('pg_text_ans', JSON.stringify(studentAns));
+                    let errEl = document.getElementById('err2'); if(errEl) errEl.classList.add('hidden');
                 });
             }
         });
+
+        let conceptSelect = document.getElementById('distance-concept');
+        if(conceptSelect) {
+            conceptSelect.value = studentAns['distConcept'] || '';
+            conceptSelect.addEventListener('change', () => {
+                studentAns['distConcept'] = conceptSelect.value; localStorage.setItem('pg_text_ans', JSON.stringify(studentAns));
+                let errEl = document.getElementById('err2'); if(errEl) errEl.classList.add('hidden');
+            });
+        }
     });
 
     function applyStageConfig() {
         document.querySelectorAll('.stage-card').forEach(el => el.classList.remove('active'));
-        let progressNum = 25; let stageTxt = 'Trạm 1/4';
-        if(currentStage === 2) { progressNum = 50; stageTxt = 'Trạm 2/4'; }
-        if(currentStage === 3) { progressNum = 75; stageTxt = 'Trạm 3/4'; }
-        if(currentStage >= 4) { progressNum = 100; stageTxt = 'Ghi bài'; }
+        let progressNum = 33; let stageTxt = 'Trạm 1/3';
+        if(currentStage === 2) { progressNum = 66; stageTxt = 'Trạm 2/3'; }
+        if(currentStage === 3) { progressNum = 100; stageTxt = 'Ghi bài'; }
 
         document.getElementById('progress-bar').style.width = `${progressNum}%`; document.getElementById('stage-text').innerText = stageTxt;
 
-        // Restore success states based on currentStage
         if (currentStage > 1) { document.getElementById('ans1').classList.add('success'); }
-        if (currentStage > 2) { document.getElementById('ans2').classList.add('success'); }
-        if (currentStage > 3) { document.getElementById('ans3').classList.add('success'); }
+        if (currentStage > 2) { 
+            document.getElementById('ans2-1').classList.add('success');
+            document.getElementById('ans2-2').classList.add('success');
+            let cs = document.getElementById('distance-concept');
+            if(cs) { cs.classList.add('success'); cs.disabled = true; }
+        }
 
         const leftPanel = document.getElementById('interactive-panel');
         const rightPanel = document.getElementById('learning-panel');
         const contentContainer = rightPanel.querySelector('div.mx-auto');
 
-        if (currentStage >= 4) {
-            leftPanel.classList.add('hidden');
-            rightPanel.classList.remove('lg:w-[55%]', 'xl:w-[50%]');
-            rightPanel.classList.add('w-full');
-            contentContainer.classList.remove('max-w-3xl');
-            contentContainer.classList.add('max-w-5xl');
-            
+        if (currentStage >= 3) {
+            leftPanel.classList.add('hidden'); rightPanel.classList.remove('lg:w-[55%]', 'xl:w-[50%]'); rightPanel.classList.add('w-full');
+            contentContainer.classList.remove('max-w-3xl'); contentContainer.classList.add('max-w-5xl');
             document.getElementById('stageCornell').classList.add('active');
-            setTimeout(() => { renderStaticCanvas(); window.dispatchEvent(new Event('resize')); }, 300);
             
-            needsRedraw = false;
-            hasInteracted = true; 
+            // Setup ban đầu cho tính năng vẽ hình từng bước
+            staticStep = 1;
+            changeStaticStep(0);
+            setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 300);
+            needsRedraw = false; hasInteracted = true; 
         } else {
-            leftPanel.classList.remove('hidden');
-            rightPanel.classList.add('lg:w-[55%]', 'xl:w-[50%]');
-            rightPanel.classList.remove('w-full');
-            contentContainer.classList.remove('max-w-5xl');
-            contentContainer.classList.add('max-w-3xl');
+            leftPanel.classList.remove('hidden'); rightPanel.classList.add('lg:w-[55%]', 'xl:w-[50%]'); rightPanel.classList.remove('w-full');
+            contentContainer.classList.remove('max-w-5xl'); contentContainer.classList.add('max-w-3xl');
             setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 100);
             
             if(currentStage === 1) {
-                document.getElementById('stage1').classList.add('active'); config.showPerps = false; config.showIncircle = false; config.showAllBisectors = true;
+                document.getElementById('stage1').classList.add('active'); config.showPerps = false; config.showAllBisectors = true;
                 if(config.showBisectorA) { document.getElementById('toggle-A').checked = true; document.getElementById('q1-box').classList.remove('opacity-50', 'pointer-events-none'); }
             } else if (currentStage === 2) {
-                document.getElementById('stage2').classList.add('active'); config.showPerps = true; config.showIncircle = false; config.showBisectorA = true; config.showAllBisectors = document.getElementById('toggle-allB').checked;
-            } else if (currentStage === 3) {
-                document.getElementById('stage3').classList.add('active'); config.showPerps = true; config.showAllBisectors = false; config.showIncircle = false;
-                
-                let checkElBox = document.getElementById('toggle-circle');
-                if(checkElBox && checkElBox.checked) {
-                    document.getElementById('q3-box').classList.remove('opacity-50', 'pointer-events-none');
-                    config.showIncircle = true;
-                }
+                document.getElementById('stage2').classList.add('active'); config.showPerps = true; config.showBisectorA = true; config.showAllBisectors = document.getElementById('toggle-allB').checked;
             }
             needsRedraw = true;
             
-            let checkId = `ans${currentStage}`;
-            let checkEl = document.getElementById(checkId);
-            
-            if(checkEl && !checkEl.classList.contains('success')) {
+            // Check interaction progress
+            let checkFailed = false;
+            if (currentStage === 1) { checkFailed = !document.getElementById('ans1').classList.contains('success'); }
+            else if (currentStage === 2) { checkFailed = !document.getElementById('ans2-1').classList.contains('success'); }
+
+            if(checkFailed) {
                 hasInteracted = false;
                 let badge = document.getElementById('interaction-badge');
                 badge.className = "flex items-center text-xs font-semibold bg-red-100 text-red-600 px-3 py-1.5 rounded-lg border border-red-200 transition-colors shadow-sm";
@@ -690,98 +800,122 @@
             else document.getElementById('q1-box').classList.add('opacity-50', 'pointer-events-none');
         }
         if(elem === 'allBisectors') config.showAllBisectors = document.getElementById('toggle-allB').checked;
-        if(elem === 'incircle') {
-            const cb = document.getElementById('toggle-circle'); config.showIncircle = cb.checked;
-            if(cb.checked) document.getElementById('q3-box').classList.remove('opacity-50', 'pointer-events-none');
-            else document.getElementById('q3-box').classList.add('opacity-50', 'pointer-events-none');
-        }
         needsRedraw = true;
     }
 
     function checkStage(stageId) {
-        if(stageId < 4 && !hasInteracted) {
-            alert("Yêu cầu học tập: Học sinh bắt buộc phải sử dụng Bảng Tương Tác Hình Học bên trái. Hãy dùng chuột/tay kéo thả các đỉnh A, B, C để tự quan sát hiện tượng trước khi đưa ra kết luận.");
+        if(stageId < 3 && !hasInteracted) {
+            alert("Yêu cầu học tập: Học sinh bắt buộc phải sử dụng Bảng Tương Tác Hình Học bên trái trước khi đưa ra kết luận.");
             return;
         }
 
-        if(stageId >= 4) return;
-
-        let elId = `ans${stageId}`;
-        let ansText = document.getElementById(elId).value.trim().toLowerCase();
-        let isCorrect = false;
         let errEl = document.getElementById(`err${stageId}`);
+        let isCorrect = false;
 
-        if(!ansText) {
-            errEl.innerText = "⚠ Em vui lòng nhập nhận xét của mình vào khung trống nhé.";
-            errEl.classList.remove('hidden');
-            return;
-        }
-
-        // CHẤM ĐIỂM BẰNG KEYWORD
-        if(stageId === 1) {
-            const kw = ['cắt nhau tại một điểm', 'cắt nhau tại 1 điểm', 'cùng đi qua một điểm', 'cùng đi qua 1 điểm', 'đồng quy', 'giao nhau tại một điểm', 'giao nhau tại 1 điểm'];
-            isCorrect = kw.some(k => ansText.includes(k));
-            if(!isCorrect) errEl.innerText = "⚠ Nhận xét của em chưa đủ ý. Hãy quan sát thật kỹ giao điểm của 3 đường phân giác trên hình và tự diễn đạt lại hiện tượng đó nhé.";
-        } 
-        else if (stageId === 2) {
-            const kw = ['bằng nhau', 'cách đều', 'như nhau'];
-            isCorrect = kw.some(k => ansText.includes(k));
-            if(!isCorrect) errEl.innerText = "⚠ Nhận xét của em chưa đủ ý. Hãy nhìn kỹ 3 con số đo khoảng cách hiển thị trên màn hình khi em kéo thả tam giác. Chúng có đặc điểm gì?";
-        }
-        else if (stageId === 3) {
-            const kw = ['tiếp xúc', 'chạm', 'vừa chạm', 'nằm trong', 'nằm bên trong', 'chạm cả 3 cạnh'];
-            isCorrect = kw.some(k => ansText.includes(k));
-            if(!isCorrect) errEl.innerText = "⚠ Hãy quan sát đường tròn màu tím vừa hiện ra. Đường tròn này có vị trí thế nào so với 3 cạnh của tam giác? (Nó có vượt ra ngoài không hay nó đang làm gì với 3 cạnh?)";
-        }
-
-        if(isCorrect) {
-            errEl.classList.add('hidden');
-            document.getElementById(elId).classList.add('success');
-            
-            if (stageId === 3) {
-                document.getElementById('stage3-part2').classList.remove('hidden');
-                document.getElementById('btn-submit-3').classList.add('hidden');
-            } else {
-                localStorage.setItem('pg_stage', (stageId + 1).toString()); currentStage = stageId + 1; applyStageConfig();
+        if (stageId === 1) {
+            let elId = `ans1`;
+            let ansText = document.getElementById(elId).value.trim().toLowerCase();
+            if(!ansText) {
+                errEl.innerText = "⚠ Em vui lòng nhập nhận xét của mình vào khung trống nhé.";
+                errEl.classList.remove('hidden'); return;
             }
-        } else { 
-            errEl.classList.remove('hidden'); 
-            document.getElementById(elId).classList.add('error');
-        }
-    }
 
-    function goToStage4() {
-        localStorage.setItem('pg_stage', '4'); currentStage = 4; applyStageConfig();
+            const kw_verb = ['cắt', 'giao', 'đi qua', 'gặp', 'chạm', 'đồng quy'];
+            const kw_noun = ['một điểm', '1 điểm', 'điểm i', 'tại i', 'cùng một', 'cùng 1'];
+            
+            let hasVerb = kw_verb.some(k => ansText.includes(k));
+            let hasNoun = kw_noun.some(k => ansText.includes(k));
+            isCorrect = (hasVerb && hasNoun) || ansText.includes('đồng quy');
+            
+            if(!isCorrect) {
+                errEl.innerText = "⚠ Hai đường phân giác góc B và góc C luôn cắt nhau tại điểm I. Nếu ta vẽ thêm đường phân giác góc A thì đường phân giác này có điều gì đặc biệt?";
+                errEl.classList.remove('hidden'); 
+                document.getElementById(elId).classList.add('error');
+            } else {
+                errEl.classList.add('hidden');
+                document.getElementById(elId).classList.remove('error');
+                document.getElementById(elId).classList.add('success');
+                localStorage.setItem('pg_stage', '2'); currentStage = 2; applyStageConfig();
+            }
+        }
+        else if (stageId === 2) {
+            let ans1 = document.getElementById('ans2-1').value.trim().toLowerCase();
+            let ans2 = document.getElementById('ans2-2').value.trim().toLowerCase();
+            let conceptSelect = document.getElementById('distance-concept');
+            
+            if (conceptSelect && conceptSelect.value !== 'correct') {
+                errEl.innerText = "⚠ Em hãy chọn đúng định nghĩa khoảng cách ở ô 'Nhắc lại kiến thức' phía trên trước nhé!";
+                errEl.classList.remove('hidden'); return;
+            }
+
+            if(!ans1 || !ans2) {
+                errEl.innerText = "⚠ Em vui lòng điền đầy đủ vào các ô trống nhé.";
+                errEl.classList.remove('hidden'); return;
+            }
+
+            let isBangNhau = ans1.includes('bằng nhau') || ans1.includes('như nhau') || ans1.includes('không đổi');
+            let isCachDeu = ans2.includes('cách đều');
+            
+            if(!isCachDeu || !isBangNhau) {
+                if (!isCachDeu) {
+                    stage2ErrorCount++;
+                }
+
+                if (stage2ErrorCount >= 3 && !isCachDeu) {
+                    document.getElementById('ans2-2').value = "cách đều";
+                    studentAns['2_2'] = "cách đều";
+                    localStorage.setItem('pg_text_ans', JSON.stringify(studentAns));
+                    errEl.innerHTML = "⚠ Cô đã hỗ trợ em từ khoá thứ 2 là <strong>cách đều</strong> do em đã thử nhiều lần. Hãy suy nghĩ tiếp từ còn lại nhé (nếu chưa đúng)!";
+                    errEl.classList.remove('hidden');
+                    document.getElementById('ans2-2').classList.remove('error');
+                } else {
+                    errEl.innerText = "⚠ Em hãy quan sát kỹ độ dài 3 đoạn vuông góc màu cam và vị trí của điểm I so với 3 cạnh để điền từ thích hợp nhé.";
+                    errEl.classList.remove('hidden'); 
+                }
+
+                if(!isBangNhau) document.getElementById('ans2-1').classList.add('error');
+                if(!isCachDeu && stage2ErrorCount < 3) document.getElementById('ans2-2').classList.add('error');
+            } else {
+                errEl.classList.add('hidden');
+                document.getElementById('ans2-1').classList.remove('error');
+                document.getElementById('ans2-1').classList.add('success');
+                document.getElementById('ans2-2').classList.remove('error');
+                document.getElementById('ans2-2').classList.add('success');
+                conceptSelect.classList.add('success');
+                conceptSelect.disabled = true;
+                localStorage.setItem('pg_stage', '3'); currentStage = 3; applyStageConfig();
+            }
+        }
     }
 
     function resetProgress() {
         localStorage.clear(); localStorage.setItem('pg_reset', 'true'); currentStage = 1; config.showBisectorA = false;
-        studentAns = {"1":"", "2":"", "3":""};
+        studentAns = {"1":"", "2_1":"", "2_2":"", "distConcept":""};
+        stage2ErrorCount = 0;
         
-        ['1', '2', '3'].forEach(id => {
-            let el = document.getElementById(`ans${id}`);
-            if(el) {
-                el.value = "";
-                el.classList.remove('success', 'error');
-            }
+        let el1 = document.getElementById('ans1');
+        if (el1) { el1.value = ""; el1.classList.remove('success', 'error'); }
+
+        ['2_1', '2_2'].forEach(id => {
+            let el = document.getElementById(`ans${id.replace('_', '-')}`);
+            if(el) { el.value = ""; el.classList.remove('success', 'error'); }
         });
 
         document.getElementById('toggle-A').checked = false; document.getElementById('toggle-allB').checked = true; 
-        
-        let cbox = document.getElementById('toggle-circle');
-        if(cbox) cbox.checked = false;
+
+        let conceptSelect = document.getElementById('distance-concept');
+        if(conceptSelect) {
+            conceptSelect.value = ''; conceptSelect.classList.remove('success', 'error'); conceptSelect.disabled = false;
+        }
         
         let q1Box = document.getElementById('q1-box'); if(q1Box) q1Box.classList.add('opacity-50', 'pointer-events-none');
-        let q3Box = document.getElementById('q3-box'); if(q3Box) q3Box.classList.add('opacity-50', 'pointer-events-none');
 
-        ['err1', 'err2', 'err3', 'stage3-part2'].forEach(id => {
-            let el = document.getElementById(id);
-            if(el) el.classList.add('hidden');
+        ['err1', 'err2'].forEach(id => {
+            let el = document.getElementById(id); if(el) el.classList.add('hidden');
         });
         
         let btn1 = document.getElementById('btn-submit-1'); if(btn1) btn1.classList.remove('hidden'); btn1.classList.add('btn-disabled');
         let btn2 = document.getElementById('btn-submit-2'); if(btn2) btn2.classList.remove('hidden'); btn2.classList.add('btn-disabled');
-        let btn3 = document.getElementById('btn-submit-3'); if(btn3) btn3.classList.remove('hidden'); btn3.classList.add('btn-disabled');
 
         initGeometry(); applyStageConfig();
     }
