@@ -105,9 +105,9 @@
                 <div class="flex items-center gap-3 w-full">
                     <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Tiến trình</span>
                     <div class="h-2 flex-grow rounded-full bg-slate-200 overflow-hidden">
-                        <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-500" style="width: 50%;"></div>
+                        <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-500" style="width: 33%;"></div>
                     </div>
-                    <span id="stage-text" class="text-sm font-bold text-blue-700 whitespace-nowrap">Trạm 1/2</span>
+                    <span id="stage-text" class="text-sm font-bold text-blue-700 whitespace-nowrap">Trạm 1/3</span>
                 </div>
             </div>
 
@@ -210,9 +210,63 @@
                             <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                             Em hãy điền nội dung này vào Phiếu học tập trên giấy nhé!
                         </p>
-                        <div class="mt-5 p-4 bg-white rounded-xl border border-emerald-200 text-center font-bold text-emerald-700 shadow-sm text-lg">
-                            🎉 Chúc mừng em đã hoàn thành xuất sắc Trạm Khám Phá!
+                        <button onclick="nextToStage3()" class="mt-5 bg-emerald-600 text-white px-4 py-3 rounded-xl font-bold hover:bg-emerald-700 w-full transition shadow-md">Tiếp tục sang Hướng dẫn vẽ hình ➔</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STAGE 3: HƯỚNG DẪN VẼ HÌNH -->
+            <div id="stage3" class="stage-card">
+                <div class="bg-indigo-50 border border-indigo-200 p-5 rounded-xl">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-bold text-xl text-indigo-800">📍 Trạm 3: Hướng dẫn vẽ hình</h3>
+                        <button onclick="backToStage2()" class="text-sm font-semibold text-indigo-700 hover:text-indigo-900 flex items-center bg-indigo-100 hover:bg-indigo-200 px-3 py-1.5 rounded-lg transition-colors shadow-sm">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                            Quay lại Trạm 2
+                        </button>
+                    </div>
+                    
+                    <p class="mb-4 text-sm text-slate-700 leading-relaxed">Để vẽ chính xác đường phân giác và khoảng cách bằng <strong>bút mực và thước thẳng</strong>, các em hãy làm theo trình tự các bước dưới đây:</p>
+                    
+                    <div class="bg-white p-4 rounded-lg border border-indigo-100 shadow-sm flex flex-col lg:flex-row gap-6 items-center">
+                        <div class="w-full lg:w-[55%] flex flex-col gap-2">
+                            <div class="aspect-[4/3] w-full bg-white rounded shadow-inner border-2 border-slate-200 relative overflow-hidden shrink-0 flex items-center justify-center">
+                                <canvas id="staticCanvas" class="w-full h-full"></canvas>
+                            </div>
+                            <!-- Trình điều khiển các bước vẽ -->
+                            <div class="flex justify-between items-center bg-white p-2.5 rounded-lg border border-indigo-200 shadow-sm">
+                                <button id="btn-prev-step" onclick="changeStaticStep(-1)" class="px-4 py-1.5 bg-slate-100 border border-slate-300 hover:bg-slate-200 rounded text-slate-700 font-bold text-sm disabled:opacity-50 transition-colors shadow-sm disabled:cursor-not-allowed">◄ Trước</button>
+                                <span id="static-step-text" class="text-sm font-bold text-indigo-800 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100">Bước 1/4</span>
+                                <button id="btn-next-step" onclick="changeStaticStep(1)" class="px-4 py-1.5 bg-indigo-600 border border-indigo-600 hover:bg-indigo-700 rounded text-white font-bold text-sm disabled:opacity-50 transition-colors shadow-sm disabled:cursor-not-allowed">Tiếp ►</button>
+                            </div>
                         </div>
+                        <div class="w-full lg:w-[45%] flex flex-col justify-center">
+                            <p class="font-bold text-indigo-900 mb-3 text-sm uppercase tracking-wide border-b border-indigo-200 pb-2">Các bước vẽ hình:</p>
+                            <ul class="text-[0.9rem] space-y-3.5 pl-1">
+                                <li id="step-text-1" class="text-indigo-700 font-bold transition-colors duration-300 flex items-start gap-2.5">
+                                    <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center shrink-0 text-xs border border-indigo-300 mt-0.5">1</span> 
+                                    <span>Vẽ tam giác $ABC$ nhọn.</span>
+                                </li>
+                                <li id="step-text-2" class="text-slate-500 transition-colors duration-300 flex items-start gap-2.5">
+                                    <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 text-xs border border-slate-300 mt-0.5">2</span> 
+                                    <span>Vẽ tia phân giác $AD$ của góc $A$. (Nhớ đánh dấu hai góc bằng nhau).</span>
+                                </li>
+                                <li id="step-text-3" class="text-slate-500 transition-colors duration-300 flex items-start gap-2.5">
+                                    <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 text-xs border border-slate-300 mt-0.5">3</span> 
+                                    <span>Vẽ tia phân giác góc $B$ và góc $C$. Ba tia phân giác cắt nhau tại điểm $I$.</span>
+                                </li>
+                                <li id="step-text-4" class="text-slate-500 transition-colors duration-300 flex items-start gap-2.5">
+                                    <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 text-xs border border-slate-300 mt-0.5">4</span> 
+                                    <span>Từ $I$ dùng ê-ke kẻ đường vuông góc đến 3 cạnh. Đánh dấu góc vuông và gạch chéo bằng nhau.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-white rounded-xl border border-indigo-200 text-center shadow-sm">
+                        <div class="text-2xl mb-1">🎉</div>
+                        <div class="font-bold text-indigo-700 text-lg">Chúc mừng em đã hoàn thành xuất sắc Trạm Khám Phá!</div>
+                        <p class="text-sm text-indigo-600 mt-1">Em hãy áp dụng các bước trên để vẽ hình vào vở nhé.</p>
                     </div>
                 </div>
             </div>
@@ -228,6 +282,7 @@
     let hasInteracted = false; 
     let stage2ErrorCount = 0; // Biến đếm số lần sai ở trạm 2
     let studentName = localStorage.getItem('pg_student_name') || '';
+    let staticStep = 1; // Biến quản lý bước vẽ hình tĩnh
     
     let config = {
         showBisectorB: true, showBisectorC: true, showBisectorA: localStorage.getItem('pg_config_A') === 'true',
@@ -294,7 +349,8 @@
     });
     
     window.addEventListener('resize', () => { 
-        initGeometry(); 
+        if(currentStage < 3) initGeometry(); 
+        else renderStaticCanvas();
     });
 
     function distance(p1, p2) { return Math.hypot(p1.x - p2.x, p1.y - p2.y); }
@@ -417,6 +473,105 @@
         requestAnimationFrame(render);
     }
 
+    function renderStaticCanvas() {
+        const sCanvas = document.getElementById('staticCanvas'); if(!sCanvas) return;
+        const rect = sCanvas.parentElement.getBoundingClientRect();
+        if(rect.width === 0) return;
+        
+        const dpr = window.devicePixelRatio || 1;
+        sCanvas.width = rect.width * dpr; sCanvas.height = rect.height * dpr;
+        const ctxS = sCanvas.getContext('2d'); ctxS.scale(dpr, dpr);
+        sCanvas.style.width = `${rect.width}px`; sCanvas.style.height = `${rect.height}px`;
+
+        let w = rect.width; let h = rect.height;
+        ctxS.clearRect(0, 0, w, h);
+
+        let pts = [ { x: w * 0.40, y: h * 0.25, label: 'A' }, { x: w * 0.10, y: h * 0.80, label: 'B' }, { x: w * 0.90, y: h * 0.80, label: 'C' } ];
+        const I = getIncenter(pts);
+
+        let c = distance(pts[0], pts[1]); let b = distance(pts[0], pts[2]);
+        let D = { x: (b * pts[1].x + c * pts[2].x) / (b + c), y: (b * pts[1].y + c * pts[2].y) / (b + c), label: 'D' };
+
+        const drawPerpAndTick = (A, B) => {
+            let dx = B.x - A.x; let dy = B.y - A.y; let len = Math.hypot(dx, dy); let udx = dx / len; let udy = dy / len;
+            let t = ((I.x - A.x)*dx + (I.y - A.y)*dy) / (len*len); let Px = A.x + t*dx; let Py = A.y + t*dy;
+            
+            ctxS.beginPath(); ctxS.moveTo(I.x, I.y); ctxS.lineTo(Px, Py); 
+            ctxS.strokeStyle = '#ea580c'; ctxS.setLineDash([4, 4]); ctxS.lineWidth = 1.5; ctxS.stroke();
+            ctxS.setLineDash([]);
+            
+            let size = 8; let nx = Px - I.x; let ny = Py - I.y; let nl = Math.hypot(nx, ny); let unx = nx / nl; let uny = ny / nl;
+            ctxS.beginPath(); ctxS.moveTo(Px - udx*size, Py - udy*size); ctxS.lineTo(Px - udx*size - unx*size, Py - udy*size - uny*size); ctxS.lineTo(Px - unx*size, Py - uny*size); 
+            ctxS.strokeStyle = '#22c55e'; ctxS.lineWidth = 1.5; ctxS.stroke(); 
+            
+            let mx = (I.x + Px) / 2; let my = (I.y + Py) / 2; let tickLen = 6;
+            ctxS.beginPath(); ctxS.moveTo(mx - udx*tickLen, my - udy*tickLen); ctxS.lineTo(mx + udx*tickLen, my + udy*tickLen);
+            ctxS.strokeStyle = '#ea580c'; ctxS.lineWidth = 2.5; ctxS.stroke();
+        };
+
+        const drawDot = (p, labelStr, isVertex) => {
+            ctxS.beginPath(); ctxS.arc(p.x, p.y, isVertex ? 5 : 4, 0, Math.PI * 2);
+            ctxS.fillStyle = isVertex ? '#ffffff' : (labelStr === 'I' ? '#a855f7' : '#ef4444'); ctxS.fill();
+            ctxS.lineWidth = 2; ctxS.strokeStyle = isVertex ? '#1e293b' : (labelStr === 'I' ? '#a855f7' : '#ef4444'); ctxS.stroke();
+            
+            ctxS.fillStyle = '#0f172a'; ctxS.font = "bold 16px Arial"; ctxS.textAlign = "center"; ctxS.textBaseline = "middle";
+            let ox = 0, oy = -20; 
+            if(labelStr === 'B') { ox = -20; oy = 20; } else if(labelStr === 'C') { ox = 20; oy = 20; } 
+            else if(labelStr === 'D') { ox = 0; oy = 20; } else if(labelStr === 'I') { ox = 15; oy = -15; }
+            ctxS.fillText(labelStr, p.x + ox, p.y + oy);
+        };
+
+        // BƯỚC 1:
+        ctxS.lineWidth = 1.5;
+        ctxS.beginPath(); ctxS.moveTo(pts[0].x, pts[0].y); ctxS.lineTo(pts[1].x, pts[1].y); ctxS.lineTo(pts[2].x, pts[2].y); ctxS.closePath();
+        ctxS.strokeStyle = '#334155'; ctxS.stroke(); ctxS.fillStyle = '#f8fafc'; ctxS.fill();
+
+        // BƯỚC 2:
+        if (staticStep >= 2) {
+            ctxS.beginPath(); ctxS.moveTo(pts[0].x, pts[0].y); ctxS.lineTo(D.x, D.y);
+            ctxS.strokeStyle = '#3b82f6'; ctxS.lineWidth = 2; ctxS.stroke();
+            drawAngleMarkBase(ctxS, pts[0], pts[1], D, '#3b82f6', 1); drawAngleMarkBase(ctxS, pts[0], D, pts[2], '#3b82f6', 1);
+            drawDot(D, 'D', false);
+        }
+
+        // BƯỚC 3:
+        if (staticStep >= 3) {
+            ctxS.beginPath(); ctxS.moveTo(pts[1].x, pts[1].y); ctxS.lineTo(I.x, I.y); ctxS.moveTo(pts[2].x, pts[2].y); ctxS.lineTo(I.x, I.y);
+            ctxS.strokeStyle = '#3b82f6'; ctxS.lineWidth = 2; ctxS.stroke();
+            drawAngleMarkBase(ctxS, pts[1], pts[2], I, '#3b82f6', 2); drawAngleMarkBase(ctxS, pts[1], I, pts[0], '#3b82f6', 2);
+            drawAngleMarkBase(ctxS, pts[2], pts[0], I, '#3b82f6', 3); drawAngleMarkBase(ctxS, pts[2], I, pts[1], '#3b82f6', 3);
+            drawDot(I, 'I', false);
+        }
+
+        // BƯỚC 4:
+        if (staticStep >= 4) { drawPerpAndTick(pts[0], pts[1]); drawPerpAndTick(pts[1], pts[2]); drawPerpAndTick(pts[2], pts[0]); }
+
+        drawDot(pts[0], 'A', true); drawDot(pts[1], 'B', true); drawDot(pts[2], 'C', true);
+    }
+
+    function changeStaticStep(delta) {
+        staticStep += delta;
+        if (staticStep < 1) staticStep = 1; if (staticStep > 4) staticStep = 4;
+        
+        document.getElementById('static-step-text').innerText = `Bước ${staticStep}/4`;
+        document.getElementById('btn-prev-step').disabled = (staticStep === 1);
+        document.getElementById('btn-next-step').disabled = (staticStep === 4);
+        
+        for(let i=1; i<=4; i++) {
+            let el = document.getElementById(`step-text-${i}`);
+            if(el) {
+                if(i === staticStep) {
+                    el.classList.add('text-indigo-700', 'font-bold'); el.classList.remove('text-slate-500');
+                    el.children[0].classList.replace('bg-slate-100', 'bg-indigo-100'); el.children[0].classList.replace('text-slate-500', 'text-indigo-700'); el.children[0].classList.replace('border-slate-300', 'border-indigo-300');
+                } else {
+                    el.classList.remove('text-indigo-700', 'font-bold'); el.classList.add('text-slate-500');
+                    el.children[0].classList.replace('bg-indigo-100', 'bg-slate-100'); el.children[0].classList.replace('text-indigo-700', 'text-slate-500'); el.children[0].classList.replace('border-indigo-300', 'border-slate-300');
+                }
+            }
+        }
+        renderStaticCanvas();
+    }
+
     function getMousePos(evt) {
         const rect = canvas.getBoundingClientRect();
         let clientX = evt.clientX || (evt.touches && evt.touches[0].clientX);
@@ -481,16 +636,29 @@
         applyStageConfig();
     }
 
+    function nextToStage3() {
+        localStorage.setItem('pg_stage', '3');
+        currentStage = 3;
+        applyStageConfig();
+    }
+
     function backToStage1() {
         localStorage.setItem('pg_stage', '1');
         currentStage = 1;
         applyStageConfig();
     }
 
+    function backToStage2() {
+        localStorage.setItem('pg_stage', '2');
+        currentStage = 2;
+        applyStageConfig();
+    }
+
     function applyStageConfig() {
         document.querySelectorAll('.stage-card').forEach(el => el.classList.remove('active'));
-        let progressNum = 50; let stageTxt = 'Trạm 1/2';
-        if(currentStage >= 2) { progressNum = 100; stageTxt = 'Trạm 2/2'; }
+        let progressNum = 33; let stageTxt = 'Trạm 1/3';
+        if(currentStage === 2) { progressNum = 66; stageTxt = 'Trạm 2/3'; }
+        if(currentStage === 3) { progressNum = 100; stageTxt = 'Trạm 3/3'; }
 
         document.getElementById('progress-bar').style.width = `${progressNum}%`; 
         document.getElementById('stage-text').innerText = stageTxt;
@@ -498,47 +666,77 @@
         // Restore Success State & Conclusions
         if (currentStage >= 2 || (studentAns['1'] && document.getElementById('ans1').classList.contains('success'))) { 
             document.getElementById('ans1').classList.add('success'); 
-            document.getElementById('btn-submit-1').classList.add('hidden');
-            document.getElementById('stage1-conclusion').classList.remove('hidden');
+            let btn1 = document.getElementById('btn-submit-1'); if(btn1) btn1.classList.add('hidden');
+            let s1c = document.getElementById('stage1-conclusion'); if(s1c) s1c.classList.remove('hidden');
         }
         if (currentStage >= 3 || (studentAns['2_1'] && studentAns['2_2'] && document.getElementById('ans2-1').classList.contains('success'))) { 
             document.getElementById('ans2-1').classList.add('success');
             document.getElementById('ans2-2').classList.add('success');
-            document.getElementById('btn-submit-2').classList.add('hidden');
-            document.getElementById('stage2-conclusion').classList.remove('hidden');
+            let btn2 = document.getElementById('btn-submit-2'); if(btn2) btn2.classList.add('hidden');
+            let s2c = document.getElementById('stage2-conclusion'); if(s2c) s2c.classList.remove('hidden');
         }
 
-        if(currentStage === 1) {
-            document.getElementById('stage1').classList.add('active'); 
-            config.showPerps = false; config.showAllBisectors = true;
-            if(config.showBisectorA) { 
-                document.getElementById('toggle-A').checked = true; 
-                document.getElementById('q1-box').classList.remove('opacity-50', 'pointer-events-none'); 
-            }
-        } else if (currentStage >= 2) {
-            document.getElementById('stage2').classList.add('active'); 
-            config.showPerps = true; config.showBisectorA = true; 
-            config.showAllBisectors = document.getElementById('toggle-allB').checked;
-        }
-        needsRedraw = true;
-        
-        // Check interaction progress
-        let checkFailed = false;
-        if (currentStage === 1) { checkFailed = !document.getElementById('ans1').classList.contains('success'); }
-        else if (currentStage === 2) { checkFailed = !document.getElementById('ans2-1').classList.contains('success'); }
+        const leftPanel = document.getElementById('interactive-panel');
+        const rightPanel = document.getElementById('learning-panel');
+        const contentContainer = rightPanel.querySelector('#learning-content');
 
-        if(checkFailed) {
-            hasInteracted = false;
-            let badge = document.getElementById('interaction-badge');
-            badge.className = "flex items-center text-xs font-semibold bg-red-100 text-red-600 px-3 py-1.5 rounded-lg border border-red-200 transition-colors shadow-sm";
-            badge.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-red-500 mr-2 animate-pulse" id="interaction-dot"></span> Chưa tương tác`;
-            let btn = document.getElementById(`btn-submit-${currentStage}`);
-            if(btn) btn.classList.add('btn-disabled');
+        if (currentStage >= 3) {
+            leftPanel.classList.add('hidden'); 
+            rightPanel.classList.remove('lg:w-[55%]', 'xl:w-[50%]'); 
+            rightPanel.classList.add('w-full');
+            contentContainer.classList.remove('max-w-3xl'); 
+            contentContainer.classList.add('max-w-5xl');
+            
+            document.getElementById('stage3').classList.add('active');
+            
+            staticStep = 1; changeStaticStep(0);
+            setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 300);
+            needsRedraw = false; hasInteracted = true; 
         } else {
-            hasInteracted = true; 
-            let badge = document.getElementById('interaction-badge');
-            badge.className = "flex items-center text-xs font-bold bg-green-100 text-green-700 px-3 py-1.5 rounded-lg border border-green-200 shadow-sm";
-            badge.innerHTML = `<svg class="w-3.5 h-3.5 mr-1.5" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg> Đã tương tác`;
+            leftPanel.classList.remove('hidden'); 
+            rightPanel.classList.add('lg:w-[55%]', 'xl:w-[50%]'); 
+            rightPanel.classList.remove('w-full');
+            contentContainer.classList.remove('max-w-5xl'); 
+            contentContainer.classList.add('max-w-3xl');
+            
+            setTimeout(() => { window.dispatchEvent(new Event('resize')); }, 100);
+            
+            if(currentStage === 1) {
+                document.getElementById('stage1').classList.add('active'); 
+                config.showPerps = false; config.showAllBisectors = true;
+                if(config.showBisectorA) { 
+                    document.getElementById('toggle-A').checked = true; 
+                    let q1Box = document.getElementById('q1-box'); if(q1Box) q1Box.classList.remove('opacity-50', 'pointer-events-none'); 
+                }
+            } else if (currentStage === 2) {
+                document.getElementById('stage2').classList.add('active'); 
+                config.showPerps = true; config.showBisectorA = true; 
+                config.showAllBisectors = document.getElementById('toggle-allB').checked;
+            }
+            needsRedraw = true;
+            
+            // Check interaction progress
+            let checkFailed = false;
+            if (currentStage === 1) { checkFailed = !document.getElementById('ans1').classList.contains('success'); }
+            else if (currentStage === 2) { checkFailed = !document.getElementById('ans2-1').classList.contains('success'); }
+
+            if(checkFailed) {
+                hasInteracted = false;
+                let badge = document.getElementById('interaction-badge');
+                if(badge) {
+                    badge.className = "flex items-center text-xs font-semibold bg-red-100 text-red-600 px-3 py-1.5 rounded-lg border border-red-200 transition-colors shadow-sm";
+                    badge.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-red-500 mr-2 animate-pulse" id="interaction-dot"></span> Chưa tương tác`;
+                }
+                let btn = document.getElementById(`btn-submit-${currentStage}`);
+                if(btn) btn.classList.add('btn-disabled');
+            } else {
+                hasInteracted = true; 
+                let badge = document.getElementById('interaction-badge');
+                if(badge) {
+                    badge.className = "flex items-center text-xs font-bold bg-green-100 text-green-700 px-3 py-1.5 rounded-lg border border-green-200 shadow-sm";
+                    badge.innerHTML = `<svg class="w-3.5 h-3.5 mr-1.5" fill="currentColor" viewBox="0 0 20 20"><path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"></path></svg> Đã tương tác`;
+                }
+            }
         }
         document.getElementById('learning-panel').scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -633,13 +831,14 @@
                 document.getElementById('btn-submit-2').classList.add('hidden');
                 document.getElementById('stage2-conclusion').classList.remove('hidden');
                 
-                localStorage.setItem('pg_stage', '3'); currentStage = 3;
+                // localStorage.setItem('pg_stage', '3'); currentStage = 3; // Do not go automatically
             }
         }
     }
 
     function resetProgress() {
         localStorage.clear(); localStorage.setItem('pg_reset', 'true'); currentStage = 1; config.showBisectorA = false;
+        staticStep = 1;
         studentAns = {"1":"", "2_1":"", "2_2":""};
         stage2ErrorCount = 0;
         
